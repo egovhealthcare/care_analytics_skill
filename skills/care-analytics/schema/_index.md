@@ -1,6 +1,6 @@
 # CARE Physical Table Index
 
-One line per table. Details: `tables/<db_table>.md`. JSONB shapes: `jsonb/<db_table>.md`. Inherited columns: `_base_models.md`. SQL rules: `_conventions.md`.
+One line per table. Details: `tables/<db_table>.md`. JSONB shapes: `jsonb/<db_table>.md`. Inherited columns: `_base_models.md`. Enum values: `_enums.md`. SQL rules: `_conventions.md`.
 
 ## abdm
 

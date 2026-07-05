@@ -18,7 +18,8 @@ Target: PostgreSQL 16. Django `JSONField` columns are JSONB.
 
 ## Enum values
 
-- `choices=Status.choices` refers to a Django choices class. Grep the table's `source:` file (and its imports) for the class to learn the literal stored values before filtering on them.
+- Resolved choices appear inline in table shards as `choices=[a|b|c]` — these are the stored values, use them directly.
+- Unresolved symbols (`choices=Status.choices (see _enums.md)`) and columns with no `choices=` at all (common on EMR status/category columns, validated at the API layer): look up `_enums.md` by class name, preferring the definition whose file matches the column's model or resource module. Never guess enum values.
 
 ## Caveats
 

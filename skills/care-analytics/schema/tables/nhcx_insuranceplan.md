@@ -10,7 +10,7 @@ bases: EMRBaseModel (inherited columns: `_base_models.md`)
 - `identifier_system` string(255)
 - `identifier_value` string(128) idx
 - `additional_identifiers` jsonb NULL default=list
-- `status` string(16) idx choices=PublicationStatus.choices default=PublicationStatus.ACTIVE
+- `status` string(16) idx choices=[draft|active|retired|unknown] default=PublicationStatus.ACTIVE
 - `type` jsonb default=dict
 - `type_code` string(64) NULL idx
 - `name` string(512) idx

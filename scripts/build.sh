@@ -27,7 +27,7 @@ CARE_REPO="${CARE_REPO:-https://github.com/ohcnetwork/care}"
 CARE_REF="${CARE_REF:-develop}"
 
 if [[ -z "${CARE_ROOT:-}" ]]; then
-  if [[ -f "$REPO_DIR/../../scripts/generate_ai_analytics_schema.py" ]]; then
+  if [[ -d "$REPO_DIR/../../care" && -f "$REPO_DIR/../../manage.py" ]]; then
     CARE_ROOT="$(cd "$REPO_DIR/../.." && pwd)"  # dev convenience: nested in care
   else
     CARE_ROOT="$REPO_DIR/.care"
@@ -41,7 +41,7 @@ if [[ -z "${CARE_ROOT:-}" ]]; then
   fi
 fi
 
-if [[ ! -f "$CARE_ROOT/scripts/generate_ai_analytics_schema.py" ]]; then
+if [[ ! -d "$CARE_ROOT/care" ]]; then
   echo "error: no usable care checkout at $CARE_ROOT (set CARE_ROOT)" >&2
   exit 1
 fi
@@ -92,7 +92,9 @@ PYEOF
 )
 fi
 
-AI_SCHEMA_OUTPUT_DIR="$REPO_DIR" "$PYTHON" "$CARE_ROOT/scripts/generate_ai_analytics_schema.py"
+# Vendored generator: scans the care tree, writes into this repo.
+CARE_SOURCE_ROOT="$CARE_ROOT" AI_SCHEMA_OUTPUT_DIR="$REPO_DIR" \
+  "$PYTHON" "$REPO_DIR/scripts/generate_ai_analytics_schema.py"
 
 {
   echo "care_sha: $(git -C "$CARE_ROOT" rev-parse HEAD 2>/dev/null || echo unknown)"

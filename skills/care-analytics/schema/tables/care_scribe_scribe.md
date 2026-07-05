@@ -12,7 +12,7 @@ bases: BaseModel (inherited columns: `_base_models.md`)
 - `transcript` string NULL
 - `text` string NULL
 - `ai_response` jsonb NULL default=dict
-- `status` string(50) choices=Status.choices default=Status.CREATED
+- `status` string(50) choices=[CREATED|READY|GENERATING_TRANSCRIPT|GENERATING_AI_RESPONSE|COMPLETED|REFUSED|FAILED] default=Status.CREATED
 - `prompt` string NULL
 - `meta` jsonb NULL default=dict
 - `chat_model` string(100) NULL

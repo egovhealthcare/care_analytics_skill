@@ -5,7 +5,7 @@ bases: EMRBaseModel (inherited columns: `_base_models.md`)
 
 ## Columns
 
-- `stage` string(20) choices=ClaimConsentStage.choices default=ClaimConsentStage.PREAUTHORIZATION
+- `stage` string(20) choices=[preauthorization|claim] default=ClaimConsentStage.PREAUTHORIZATION
 - `payer_id` string(100)
 - `encounter` foreign_key -> emr_encounter [col: encounter_id]
 - `patient` foreign_key -> emr_patient [col: patient_id]

@@ -8,7 +8,7 @@ bases: BaseModel (inherited columns: `_base_models.md`)
 - `name` string(2000)
 - `internal_name` string(2000)
 - `associating_id` string(100)
-- `file_type` integer choices=FileType.choices default=FileType.SCRIBE_AUDIO
+- `file_type` integer choices=[0|1|2] default=FileType.SCRIBE_AUDIO
 - `mime_type` string(200) NULL
 - `signed_url` string(2000) NULL
 - `upload_completed` boolean default=False

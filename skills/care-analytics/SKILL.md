@@ -39,12 +39,17 @@ Two directories, two owners:
 5. If the query touches a JSONB column, read `schema/jsonb/<db_table>.md`
    for its shape before writing `->>` accessors. Treat `candidate_schemas`
    as strong hints, not guarantees.
-6. If filtering on a `choices=` column, check `notes/<db_table>.md` first —
-   curated literals may already be there. Otherwise the shard shows a symbol
-   like `Status.choices`: grep the model source (path in the shard's
-   `source:` header, inside the care checkout) for the literal stored
-   values — never guess enum values. If the care source isn't available,
-   ask the user or sample distinct values from the database.
+6. Enum values — never guess them:
+   - Resolved choices appear inline in the shard as `choices=[a|b|c]`; use
+     those stored values directly.
+   - For unresolved symbols (`choices=X (see _enums.md)`) and for columns
+     with no `choices=` at all (common on EMR status/category columns,
+     validated at the API layer), grep `schema/_enums.md` by class name or
+     concept, preferring the definition whose source file matches the
+     column's model or resource module. Check `notes/<db_table>.md` too —
+     curated literals override.
+   - If neither has it, ask the user or sample distinct values from the
+     database.
 7. Write PostgreSQL 16 SQL following `schema/_conventions.md`. Non-negotiables:
    - `WHERE deleted = false` on every BaseModel table (unless auditing deletions)
    - Join on integer `<name>_id` columns; expose `external_id` (UUID) in

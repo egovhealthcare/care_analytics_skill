@@ -13,7 +13,7 @@ bases: AbstractUser (inherited columns: `_base_models.md`)
 - `phone_number` string(14)
 - `alt_phone_number` string(14) NULL
 - `video_connect_link` string NULL
-- `old_gender` integer NULL choices=GENDER_CHOICES
+- `old_gender` integer NULL choices=[1|2|3]
 - `gender` string(100) NULL
 - `date_of_birth` date NULL
 - `profile_picture_url` string(500) NULL

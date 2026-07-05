@@ -26,6 +26,6 @@ bases: EMRBaseModel (inherited columns: `_base_models.md`)
 - `questionnaire_responses` jsonb NULL default=list
 - `dispatched_at` datetime NULL
 - `dispatch_error` string
-- `dispatch_status` string(16) idx choices=DispatchStatusChoices.choices default=DispatchStatusChoices.PENDING
+- `dispatch_status` string(16) idx choices=[pending|awaiting|partial|complete|error] default=DispatchStatusChoices.PENDING
 
 JSONB shapes (`history`, `meta`, `type`, `insurer`, `billable_period`, `related`, `care_team`, `supporting_info`, `procedure`, `diagnosis`, `insurance`, `item`, `accident`, `payee`, `questionnaire_responses`): `jsonb/nhcx_claim.md`

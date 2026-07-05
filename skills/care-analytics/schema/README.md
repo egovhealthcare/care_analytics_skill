@@ -8,6 +8,7 @@ Generated from the Care source tree. These files are static catalogs for AI-assi
 - `_index.md`: one line per table with FK edges. **Agents start here.**
 - `_conventions.md`: SQL rules (soft delete, id vs external_id, JSONB access).
 - `_base_models.md`: inherited base-class columns, defined once.
+- `_enums.md`: every enum/choices class with stored values, grouped by source file.
 - `tables/<db_table>.md`: declared columns and relations for one table.
 - `jsonb/<db_table>.md`: JSONB column shapes for one table.
 

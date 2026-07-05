@@ -27,6 +27,8 @@ back into a curated `notes/` directory that regeneration never overwrites.
 - `skills/care-analytics/notes/` — **human-curated** context per table plus
   `_general.md`; survives regeneration (see `notes/README.md` for format)
 - `scripts/build.sh` — regenerates the catalog
+- `scripts/generate_ai_analytics_schema.py` — the generator (vendored; scans
+  a care checkout without importing it, so no Django setup or DB is needed)
 - `plugs.json.example` — sample plugin list (care's `ADDITIONAL_PLUGS` format)
 - `physical-tables.json` — full machine-readable catalog (build artifact,
   gitignored; agents should never read it)

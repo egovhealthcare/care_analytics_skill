@@ -17,12 +17,12 @@ bases: EMRBaseModel (inherited columns: `_base_models.md`)
 - `output` jsonb NULL default=list
 - `part_of` foreign_key -> nhcx_task [col: part_of_id] NULL
 - `claim` foreign_key -> nhcx_claim [col: claim_id] NULL
-- `use_case` string(32) choices=TaskUseCaseChoices.choices
+- `use_case` string(32) choices=[communication_request|communication_response|payment_notice_request|payment_notice_response|reprocess_request|reprocess_response|cancel_request|cancel_response|search_request|search_response|insurance_plan_request]
 - `focus_type` foreign_key -> ContentType [col: focus_type_id] NULL
 - `focus_id` integer NULL
 - `focus` generic_foreign_key -> ?
 - `dispatched_at` datetime NULL
 - `dispatch_error` string
-- `dispatch_status` string(16) idx choices=DispatchStatusChoices.choices default=DispatchStatusChoices.PENDING
+- `dispatch_status` string(16) idx choices=[pending|awaiting|partial|complete|error] default=DispatchStatusChoices.PENDING
 
 JSONB shapes (`history`, `meta`, `code`, `reason_code`, `input`, `output`): `jsonb/nhcx_task.md`

@@ -9,7 +9,7 @@ bases: BaseModel (inherited columns: `_base_models.md`)
 - `description` string
 - `is_active` boolean default=True
 - `verified` boolean default=False
-- `facility_type` integer choices=FACILITY_TYPES
+- `facility_type` integer choices=[1|2|3|4|5|6|7|9|10|800|802|803|830|840|860|870|900|910|1010|1100|+9 more]
 - `features` array<integer> NULL
 - `longitude` decimal NULL
 - `latitude` decimal NULL

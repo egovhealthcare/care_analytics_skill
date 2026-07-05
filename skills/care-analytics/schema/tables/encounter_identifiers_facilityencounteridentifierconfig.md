@@ -9,6 +9,6 @@ bases: EMRBaseModel (inherited columns: `_base_models.md`)
 - `pattern` string(128)
 - `facility_code` string(16)
 - `enabled_encounter_classes` jsonb default=list
-- `reset_period` string(16) choices=RESET_PERIOD_CHOICES default=yearly
+- `reset_period` string(16) choices=[none|yearly|monthly|daily] default=yearly
 
 JSONB shapes (`history`, `meta`, `enabled_encounter_classes`): `jsonb/encounter_identifiers_facilityencounteridentifierconfig.md`
