@@ -1,0 +1,12 @@
+[
+  {
+    "name": "care_abdm",
+    "package_name": "git+https://github.com/ohcnetwork/care_abdm.git",
+    "version": "@main"
+  },
+  {
+    "name": "care_scribe",
+    "package_name": "git+https://github.com/ohcnetwork/care_scribe.git",
+    "version": "@main"
+  }
+]

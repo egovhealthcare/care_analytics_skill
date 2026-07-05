@@ -1,0 +1,45 @@
+name: Regenerate schema catalog
+
+on:
+  workflow_dispatch:
+    inputs:
+      care_ref:
+        description: "care branch/tag/SHA to build against"
+        default: develop
+  schedule:
+    - cron: "0 3 * * 1" # weekly, Monday 03:00 UTC
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # Plugin list comes from plugs.json (committed) or the ADDITIONAL_PLUGS
+      # repo variable — same JSON format as care's ADDITIONAL_PLUGS env.
+      # For private plug repos, configure a PAT:
+      #   git config --global url."https://x-access-token:${{ secrets.PLUGS_PAT }}@github.com/".insteadOf "https://github.com/"
+      - name: Build schema
+        env:
+          CARE_REF: ${{ inputs.care_ref || 'develop' }}
+          ADDITIONAL_PLUGS: ${{ vars.ADDITIONAL_PLUGS }}
+        run: scripts/build.sh
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add skills/care-analytics/schema
+          if git diff --cached --quiet; then
+            echo "schema unchanged"
+          else
+            git commit -m "chore: regenerate schema catalog ($(grep care_sha skills/care-analytics/schema/PROVENANCE))"
+            git push
+          fi

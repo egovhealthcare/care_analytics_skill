@@ -1,0 +1,8 @@
+{
+  "name": "care-analytics",
+  "description": "Build analytics SQL over the CARE EMR PostgreSQL schema, including deployment-specific plugins. Ships a sharded schema catalog for low-context lookups.",
+  "version": "0.1.0",
+  "author": {
+    "name": "eGovernments Foundation"
+  }
+}
