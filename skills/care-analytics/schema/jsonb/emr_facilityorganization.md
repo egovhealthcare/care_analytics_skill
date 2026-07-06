@@ -1,161 +1,19 @@
-# emr_facilityorganization JSONB schemas
+# emr_facilityorganization JSONB shapes
+
+Distilled from Pydantic API specs — strong hints, not guarantees; custom serializers can change the stored shape.
 
 ## history
 
-```json
-{
- "candidate_schemas": [],
- "default_shape": {
-  "type": "object"
- },
- "inferred_schema": {
-  "type": "object"
- },
- "json_schema_validators": [],
- "meta_stored_fields": [],
- "status": "default_shape_only"
-}
-```
+- shape unknown — no spec declares this field (check serializers; default is dict)
 
 ## meta
 
-```json
-{
- "candidate_schemas": [
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/facility_organization/spec.py",
-   "spec": "care.emr.resources.facility_organization.spec.FacilityOrganizationBaseSpec"
-  },
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/facility_organization/spec.py",
-   "spec": "care.emr.resources.facility_organization.spec.FacilityOrganizationReadSpec"
-  },
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/facility_organization/spec.py",
-   "spec": "care.emr.resources.facility_organization.spec.FacilityOrganizationRetrieveSpec"
-  },
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/facility_organization/spec.py",
-   "spec": "care.emr.resources.facility_organization.spec.FacilityOrganizationWriteSpec"
-  }
- ],
- "default_shape": {
-  "type": "object"
- },
- "json_schema_validators": [],
- "meta_stored_fields": [],
- "status": "from_pydantic_spec"
-}
-```
+- dict, optional — FacilityOrganizationBaseSpec, FacilityOrganizationReadSpec, FacilityOrganizationRetrieveSpec, FacilityOrganizationUpdateSpec +1
 
 ## metadata
 
-```json
-{
- "candidate_schemas": [
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/facility_organization/spec.py",
-   "spec": "care.emr.resources.facility_organization.spec.FacilityOrganizationBaseSpec"
-  },
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/facility_organization/spec.py",
-   "spec": "care.emr.resources.facility_organization.spec.FacilityOrganizationReadSpec"
-  },
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/facility_organization/spec.py",
-   "spec": "care.emr.resources.facility_organization.spec.FacilityOrganizationRetrieveSpec"
-  },
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/facility_organization/spec.py",
-   "spec": "care.emr.resources.facility_organization.spec.FacilityOrganizationWriteSpec"
-  }
- ],
- "default_shape": {
-  "type": "object"
- },
- "json_schema_validators": [],
- "meta_stored_fields": [],
- "status": "from_pydantic_spec"
-}
-```
+- dict, optional — FacilityOrganizationBaseSpec, FacilityOrganizationReadSpec, FacilityOrganizationRetrieveSpec, FacilityOrganizationUpdateSpec +1
 
 ## cached_parent_json
 
-```json
-{
- "candidate_schemas": [],
- "default_shape": {
-  "type": "object"
- },
- "inferred_schema": {
-  "type": "object"
- },
- "json_schema_validators": [],
- "meta_stored_fields": [],
- "status": "default_shape_only"
-}
-```
+- shape unknown — no spec declares this field (check serializers; default is dict)

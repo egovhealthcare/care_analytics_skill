@@ -11,19 +11,115 @@ from __future__ import annotations
 import ast
 import json
 import os
+import shutil
+import subprocess
+import sys
 from collections import OrderedDict, defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-# Care source tree to scan. This script is vendored in care_analytics_skill,
-# so the care checkout location comes from the environment (set by build.sh);
-# the fallback covers running a copy from within care's own scripts/.
-PROJECT_ROOT = Path(
-    os.environ.get("CARE_SOURCE_ROOT", Path(__file__).resolve().parents[1])
-).resolve()
+REPO_DIR = Path(__file__).resolve().parents[1]
+# Vendored mode: this script lives in care_analytics_skill (shards ship with
+# the plugin). Otherwise it's a copy running from care's own scripts/.
+VENDORED = (REPO_DIR / "skills" / "care-analytics").is_dir()
+
+
+def _git(*args: str, cwd: Path | None = None, check: bool = True) -> str:
+    result = subprocess.run(
+        ["git", *args], cwd=cwd, check=False, capture_output=True, text=True
+    )
+    if check and result.returncode != 0:
+        where = f" (in {cwd})" if cwd else ""
+        sys.exit(
+            f"error: `git {' '.join(args)}`{where} failed:\n"
+            f"{result.stderr.strip() or result.stdout.strip() or '(no output)'}"
+        )
+    return result.stdout.strip()
+
+
+def _try_git(*args: str, cwd: Path | None = None) -> bool:
+    return (
+        subprocess.run(["git", *args], cwd=cwd, capture_output=True).returncode == 0
+    )
+
+
+def _clone_plugs(care_root: Path) -> None:
+    """Clone git+ plugs from ADDITIONAL_PLUGS env or plugs.json into app/."""
+    raw = os.environ.get("ADDITIONAL_PLUGS", "")
+    if not raw and (REPO_DIR / "plugs.json").is_file():
+        raw = (REPO_DIR / "plugs.json").read_text()
+    if not raw.strip():
+        return
+    for plug in json.loads(raw):
+        name = plug["name"]
+        pkg = plug.get("package_name", name)
+        ref = plug.get("version", "").lstrip("@")
+        if pkg.startswith("git+"):
+            dest = care_root / "app" / name
+            if (dest / ".git").is_dir():
+                _git("fetch", "--quiet", cwd=dest)
+            else:
+                _git("clone", "--quiet", pkg.removeprefix("git+"), str(dest))
+            if ref:
+                _git("checkout", "--quiet", ref, cwd=dest)
+            print(f"plug: {name} @ {_git('rev-parse', '--short', 'HEAD', cwd=dest)}")
+        elif "/" in pkg:
+            print(f"plug: {name} (local path {pkg} — assumed present in care tree)")
+        else:
+            print(
+                f"warning: plug {name} is a pip package ({pkg}) — no source to scan, skipped",
+                file=sys.stderr,
+            )
+
+
+def _resolve_care_root() -> Path:
+    """Locate a care checkout, cloning care and plugs if necessary."""
+    env_root = os.environ.get("CARE_SOURCE_ROOT") or os.environ.get("CARE_ROOT")
+    if env_root:
+        root = Path(env_root).resolve()
+    elif not VENDORED:
+        root = REPO_DIR  # running from within care itself
+    elif (REPO_DIR.parents[1] / "manage.py").is_file() and (
+        REPO_DIR.parents[1] / "care"
+    ).is_dir():
+        root = REPO_DIR.parents[1]  # dev convenience: repo nested inside care
+    else:
+        root = REPO_DIR / ".care"  # gitignored clone
+        repo = os.environ.get("CARE_REPO", "https://github.com/ohcnetwork/care")
+        ref = os.environ.get("CARE_REF", "develop")
+        if (root / ".git").is_dir():
+            print(f"updating care checkout at {root} (ref: {ref}) ...", flush=True)
+            usable = _try_git("fetch", "origin", cwd=root) and _try_git(
+                "checkout", ref, cwd=root
+            )
+            if not usable:
+                print(
+                    f"warning: {root} is stale or partial — deleting and recloning",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                shutil.rmtree(root)
+        if not (root / ".git").is_dir():
+            print(f"cloning {repo} into {root} ...", flush=True)
+            _git("clone", repo, str(root))
+            _git("checkout", ref, cwd=root)
+        _git("pull", "--quiet", "--ff-only", "origin", ref, cwd=root, check=False)
+    if not (root / "care").is_dir():
+        sys.exit(f"error: no usable care checkout at {root} (set CARE_ROOT)")
+    print(f"care: {root} @ {_git('rev-parse', '--short', 'HEAD', cwd=root, check=False) or 'unknown'}")
+    _clone_plugs(root)
+    return root
+
+
+# Care source tree to scan. Resolved (and cloned, with plugs) at import so
+# module-level catalogs like APP_CONFIGS see the final tree.
+PROJECT_ROOT = _resolve_care_root()
 OUTPUT_DIR = Path(
-    os.environ.get("AI_SCHEMA_OUTPUT_DIR", PROJECT_ROOT / "docs" / "ai-analytics-schema")
+    os.environ.get(
+        "AI_SCHEMA_OUTPUT_DIR",
+        REPO_DIR if VENDORED else PROJECT_ROOT / "docs" / "ai-analytics-schema",
+    )
 )
 # Markdown shards live inside the care-analytics skill so the plugin ships them.
 SCHEMA_DIR = OUTPUT_DIR / "skills" / "care-analytics" / "schema"
@@ -113,7 +209,12 @@ FIELD_TYPE_MAP = {
 
 
 def rel(path: Path) -> str:
-    return path.relative_to(PROJECT_ROOT).as_posix()
+    for base in (PROJECT_ROOT, REPO_DIR):
+        try:
+            return path.relative_to(base).as_posix()
+        except ValueError:
+            continue
+    return path.as_posix()  # outside both trees; keep absolute
 
 
 def is_excluded(path: Path) -> bool:
@@ -217,8 +318,11 @@ def schema_from_annotation(node: ast.AST | None) -> dict[str, Any]:
             "list": "array",
             "datetime": "datetime",
             "date": "date",
+            "time": "time",
             "UUID": "uuid",
             "UUID4": "uuid",
+            "UUID5": "uuid",
+            "Decimal": "decimal",
             "Any": "any",
         }
         if node.id in mapping:
@@ -231,6 +335,12 @@ def schema_from_annotation(node: ast.AST | None) -> dict[str, Any]:
             return {"type": "datetime", "raw": raw}
         if dotted.endswith(".date"):
             return {"type": "date", "raw": raw}
+        if dotted.endswith(".time"):
+            return {"type": "time", "raw": raw}
+        if dotted.endswith(".Decimal"):
+            return {"type": "decimal", "raw": raw}
+        if dotted.endswith((".UUID", ".UUID4", ".UUID5")):
+            return {"type": "uuid", "raw": raw}
         return {"type": "ref", "ref": dotted, "raw": raw}
 
     if isinstance(node, ast.Subscript):
@@ -641,7 +751,14 @@ def parse_spec_classes(paths: list[Path]) -> dict[str, dict[str, Any]]:
                             value = literal_value(stmt.value)
                             store_metadata = value if isinstance(value, bool) else None
 
-            include = bool(fields or model_expr or set(base_names) & SPEC_BASE_NAMES)
+            # ponytail: CARE spec classes all end in "Spec"; include subclasses so
+            # inherited-only specs (e.g. PatientIdentifierListSpec) resolve.
+            include = bool(
+                fields
+                or model_expr
+                or set(base_names) & SPEC_BASE_NAMES
+                or any(name.endswith("Spec") for name in base_names)
+            )
             if not include:
                 continue
 
@@ -1043,6 +1160,7 @@ def build_specs_catalog(
                 "source_file": info["source_file"],
                 "line": info["line"],
                 "bases": info["bases"],
+                "imports": info["imports"],
                 "model": model_fqn,
                 "exclude": resolve_spec_exclude(fqn, spec_classes, spec_name_index),
                 "store_metadata": resolve_store_metadata(fqn, spec_classes, spec_name_index),
@@ -1146,6 +1264,8 @@ def walk_schema_refs(schema: Any) -> set[str]:
     if isinstance(schema, dict):
         if schema.get("type") == "ref" and schema.get("ref"):
             refs.add(str(schema["ref"]))
+        if schema.get("type") == "valueset_coding":
+            refs.add("Coding")  # ValueSetBoundCoding stores a plain Coding
         for value in schema.values():
             refs.update(walk_schema_refs(value))
     elif isinstance(schema, list):
@@ -1160,6 +1280,10 @@ def resolve_schema_ref(
     spec_name_index: dict[str, list[str]],
 ) -> str | None:
     ref_name = simple_name(ref)
+    # ponytail: import map disambiguates; no-import ambiguity stays unresolved, not guessed
+    imported = source_spec.get("imports", {}).get(ref_name)
+    if imported:
+        return imported
     return resolve_class_name(ref_name, source_spec["module"], spec_name_index)
 
 
@@ -1167,6 +1291,7 @@ def collect_embedded_definitions(
     root_schemas: list[tuple[dict[str, Any], str]],
     specs_by_fqn: dict[str, dict[str, Any]],
     spec_name_index: dict[str, list[str]],
+    enum_index: dict[str, list[dict[str, Any]]],
 ) -> tuple[list[dict[str, Any]], list[str]]:
     definitions: OrderedDict[str, dict[str, Any]] = OrderedDict()
     unresolved_refs: set[str] = set()
@@ -1179,29 +1304,55 @@ def collect_embedded_definitions(
             continue
         for ref in sorted(walk_schema_refs(schema)):
             target_fqn = resolve_schema_ref(ref, source_spec, spec_name_index)
-            if not target_fqn:
-                unresolved_refs.add(ref)
+            # Membership guard: resolve_schema_ref may hand back an import/ambiguity
+            # FQN that was filtered out of specs_by_fqn — fall through to enums.
+            target_spec = specs_by_fqn.get(target_fqn) if target_fqn else None
+            if target_spec is not None:
+                if target_fqn in definitions:
+                    continue
+                definition = {
+                    "name": target_spec["class_name"],
+                    "spec": target_spec["spec"],
+                    "source_file": target_spec["source_file"],
+                    "fields": [
+                        {
+                            "name": field["name"],
+                            "annotation": field.get("annotation"),
+                            "schema": field.get("schema"),
+                            "required": field.get("required"),
+                        }
+                        for field in target_spec["fields"]
+                    ],
+                }
+                definitions[target_fqn] = definition
+                for field in target_spec["fields"]:
+                    queue.append((field.get("schema", {}), target_fqn))
                 continue
-            if target_fqn in definitions:
-                continue
-            target_spec = specs_by_fqn[target_fqn]
-            definition = {
-                "name": target_spec["class_name"],
-                "spec": target_spec["spec"],
-                "source_file": target_spec["source_file"],
-                "fields": [
+            # Spec miss → try the enum catalog. Names are NOT unique across files;
+            # prefer the enum in the same file, then same dir, then a stable pick.
+            candidates = enum_index.get(simple_name(ref), [])
+            if candidates:
+                spec_file = source_spec["source_file"]
+                spec_dir = spec_file.rsplit("/", 1)[0]
+                enum = (
+                    next((e for e in candidates if e["source_file"] == spec_file), None)
+                    or next((e for e in candidates if e["source_file"].startswith(spec_dir)), None)
+                    or sorted(candidates, key=lambda e: (e["source_file"], e["line"]))[0]
+                )
+                # Synthetic key: never collides with a spec FQN, keeps distinct
+                # same-named enums (StatusChoices etc.) from collapsing.
+                key = f"enum::{enum['source_file']}::{enum['class_name']}"
+                definitions.setdefault(
+                    key,
                     {
-                        "name": field["name"],
-                        "annotation": field.get("annotation"),
-                        "schema": field.get("schema"),
-                        "required": field.get("required"),
-                    }
-                    for field in target_spec["fields"]
-                ],
-            }
-            definitions[target_fqn] = definition
-            for field in target_spec["fields"]:
-                queue.append((field.get("schema", {}), target_fqn))
+                        "name": enum["class_name"],
+                        "key": key,
+                        "kind": "enum",
+                        "values": enum["values"],
+                    },
+                )
+                continue
+            unresolved_refs.add(ref)
 
     return list(definitions.values()), sorted(unresolved_refs)
 
@@ -1210,6 +1361,7 @@ def build_column_jsonb_schema(
     jsonb_field: dict[str, Any],
     specs_by_fqn: dict[str, dict[str, Any]],
     spec_name_index: dict[str, list[str]],
+    enum_index: dict[str, list[dict[str, Any]]],
 ) -> dict[str, Any]:
     root_schemas: list[tuple[dict[str, Any], str]] = []
     candidate_schemas = []
@@ -1235,7 +1387,7 @@ def build_column_jsonb_schema(
             root_schemas.append((schema, source_spec))
 
     definitions, unresolved_refs = collect_embedded_definitions(
-        root_schemas, specs_by_fqn, spec_name_index
+        root_schemas, specs_by_fqn, spec_name_index, enum_index
     )
 
     schema = {
@@ -1281,7 +1433,7 @@ def build_physical_table_catalog(
                 jsonb_field = jsonb_by_model_field.get((model["model"], field["name"]))
                 if jsonb_field:
                     column["jsonb_schema"] = build_column_jsonb_schema(
-                        jsonb_field, specs_by_fqn, spec_name_index
+                        jsonb_field, specs_by_fqn, spec_name_index, enum_index
                     )
             columns.append(column)
 
@@ -1485,9 +1637,9 @@ Target: PostgreSQL 16. Django `JSONField` columns are JSONB.
 
 ## JSONB
 
-- Shapes are documented in `jsonb/<db_table>.md`. `candidate_schemas` come from Pydantic API specs — strong hints, not guarantees; custom serializers can change stored shape.
+- Shapes are documented in `jsonb/<db_table>.md`, distilled from Pydantic API specs — strong hints, not guarantees; custom serializers can change the stored shape. Named object types are expanded once per file under `## definitions`.
 - Access patterns: `col->>'field'` (text), `col->'nested'` (jsonb), `jsonb_array_elements(col)` for arrays.
-- Fields under `meta_stored_fields` live in the `meta` column only when the resource sets `__store_metadata__ = True`.
+- Fields on a `stores (when __store_metadata__)` line live in the `meta` column only for resources that enable it.
 
 ## Enum values
 
@@ -1651,17 +1803,124 @@ def write_table_shards(
         )
 
 
+SIMPLE_TYPE_NAMES = {
+    "string": "str",
+    "integer": "int",
+    "number": "float",
+    "boolean": "bool",
+    "object": "dict",
+    "datetime": "datetime",
+    "date": "date",
+    "time": "time",
+    "decimal": "decimal",
+    "uuid": "uuid",
+    "any": "any",
+    "null": "null",
+    "unknown": "?",
+}
+
+
+def type_str(schema: dict[str, Any] | None) -> str:
+    """Render a parsed annotation schema as a compact type expression."""
+    if not schema:
+        return "?"
+    kind = schema.get("type")
+    if kind == "array":
+        out = f"list[{type_str(schema.get('items'))}]"
+    elif kind == "literal":
+        out = " | ".join(repr(v) for v in schema.get("enum", []))
+    elif kind == "union":
+        out = " | ".join(type_str(m) for m in schema.get("any_of", []))
+    elif kind == "ref":
+        out = simple_name(str(schema.get("ref") or "?"))
+    elif kind == "valueset_coding":
+        out = "Coding"
+    else:
+        out = SIMPLE_TYPE_NAMES.get(kind, schema.get("raw") or "?")
+    if schema.get("nullable"):
+        out += "?"
+    return out
+
+
+def fields_str(defn: dict[str, Any]) -> str:
+    inner = ", ".join(
+        f"{field['name']}: {type_str(field.get('schema'))}"
+        for field in defn.get("fields", [])
+    )
+    return "{" + inner + "}"
+
+
+def spec_names_str(spec_fqns: list[str], limit: int = 4) -> str:
+    names = [simple_name(fqn) for fqn in spec_fqns]
+    if len(names) > limit:
+        return ", ".join(names[:limit]) + f" +{len(names) - limit}"
+    return ", ".join(names)
+
+
+def render_jsonb_column(name: str, js: dict[str, Any]) -> list[str]:
+    """One compact block per column: distinct shapes, validators, meta fields."""
+    lines = [f"## {name}", ""]
+    # Dedupe candidate schemas: one line per distinct (shape, requiredness).
+    variants: OrderedDict[tuple[str, bool], list[str]] = OrderedDict()
+    for cand in js.get("candidate_schemas", []):
+        schema = cand.get("schema") or {}
+        shape = type_str(schema)
+        if schema.get("type") == "valueset_coding":
+            shape += " (valueset-bound)"
+        key = (shape, bool(cand.get("required")))
+        variants.setdefault(key, []).append(cand.get("spec", "?"))
+    for (shape, required), specs in variants.items():
+        req = "required" if required else "optional"
+        lines.append(f"- {shape}, {req} — {spec_names_str(specs)}")
+    for validator in js.get("json_schema_validators", []):
+        symbol = validator.get("symbol", str(validator)) if isinstance(validator, dict) else str(validator)
+        lines.append(f"- validator: `{symbol}`")
+    if not variants and not js.get("json_schema_validators"):
+        lines.append(
+            "- shape unknown — no spec declares this field "
+            "(check serializers; default is "
+            f"{type_str(js.get('default_shape')) if js.get('default_shape') else '?'})"
+        )
+    stored = js.get("meta_stored_fields", [])
+    if stored:
+        inner = ", ".join(
+            f"{field['name']}: {type_str(field.get('schema'))}" for field in stored
+        )
+        lines.append(f"- stores (when `__store_metadata__`): {{{inner}}}")
+    lines.append("")
+    return lines
+
+
 def write_jsonb_shards(tables: list[dict[str, Any]]) -> None:
     for table in tables:
         jsonb_cols = [c for c in table["columns"] if "jsonb_schema" in c]
         if not jsonb_cols:
             continue
-        lines = [f"# {table['db_table']} JSONB schemas", ""]
+        lines = [
+            f"# {table['db_table']} JSONB shapes",
+            "",
+            "Distilled from Pydantic API specs — strong hints, not guarantees; "
+            "custom serializers can change the stored shape.",
+            "",
+        ]
+        definitions: OrderedDict[str, dict[str, Any]] = OrderedDict()
+        unresolved: set[str] = set()
         for col in jsonb_cols:
-            lines.extend(
-                [f"## {col['name']}", "", "```json",
-                 json.dumps(col["jsonb_schema"], indent=1, sort_keys=True), "```", ""]
-            )
+            lines.extend(render_jsonb_column(col["name"], col["jsonb_schema"]))
+            for defn in col["jsonb_schema"].get("definitions", []):
+                definitions.setdefault(defn.get("key", defn["name"]), defn)
+            unresolved.update(col["jsonb_schema"].get("unresolved_refs", []))
+        if definitions or unresolved:
+            lines.extend(["## definitions", ""])
+            for _key, defn in sorted(definitions.items()):
+                if defn.get("kind") == "enum":
+                    vals = " | ".join(repr(v) for v in defn["values"])
+                    lines.append(f"- `{defn['name']}`: {vals}")
+                else:
+                    lines.append(f"- `{defn['name']}`: {fields_str(defn)}")
+            if unresolved:
+                lines.append(f"- unresolved refs: {', '.join(sorted(unresolved))}")
+            lines.append("")
         (SCHEMA_DIR / "jsonb" / f"{table['db_table']}.md").write_text("\n".join(lines))
 
 
@@ -1705,10 +1964,44 @@ def write_shards(tables: list[dict[str, Any]], enums: list[dict[str, Any]]) -> N
     write_enums_shard(enums)
 
 
+def _selfcheck_enum_resolution() -> None:
+    """An enum-typed ref must resolve to an inline-value definition, not unresolved."""
+    # ponytail: self-check runs in main(); no standalone importer to keep isolated
+    source_fqn = "x.SourceSpec"
+    specs_by_fqn = {
+        source_fqn: {"module": "x", "source_file": "x.py", "imports": {}, "fields": []}
+    }
+    enum_index = {
+        "AdmitSourcesChoices": [
+            {
+                "class_name": "AdmitSourcesChoices",
+                "source_file": "x.py",
+                "line": 1,
+                "values": ["hosp-trans", "emd"],
+            }
+        ]
+    }
+    root = ({"type": "ref", "ref": "AdmitSourcesChoices"}, source_fqn)
+    definitions, unresolved = collect_embedded_definitions(
+        [root], specs_by_fqn, {}, enum_index
+    )
+    assert unresolved == [], f"selfcheck: unexpected unresolved refs {unresolved}"
+    enum_defs = [d for d in definitions if d.get("kind") == "enum"]
+    assert enum_defs, "selfcheck: enum ref did not resolve to a definition"
+    assert enum_defs[0]["values"] == ["hosp-trans", "emd"], (
+        f"selfcheck: wrong enum values {enum_defs[0]['values']}"
+    )
+
+
 def main() -> None:
+    _selfcheck_enum_resolution()
     generated_at = datetime.now(UTC).isoformat()
     model_files = iter_model_files()
     spec_files = iter_spec_files()
+    print(
+        f"scanning {len(model_files)} model files, {len(spec_files)} spec files ...",
+        flush=True,
+    )
 
     model_classes, json_schema_constants = parse_model_classes(model_files)
     model_name_index = build_name_index(model_classes)
@@ -1769,6 +2062,16 @@ def main() -> None:
     )
     write_readme(tables, specs, jsonb_fields)
     write_shards(tables, enums)
+
+    care_sha = _git("rev-parse", "HEAD", cwd=PROJECT_ROOT, check=False) or "unknown"
+    plugs_raw = os.environ.get("ADDITIONAL_PLUGS", "")
+    if not plugs_raw and (REPO_DIR / "plugs.json").is_file():
+        plugs_raw = (REPO_DIR / "plugs.json").read_text().strip()
+    (SCHEMA_DIR / "PROVENANCE").write_text(
+        f"care_sha: {care_sha}\n"
+        f"plugs: {plugs_raw or 'none (app/ sources as present in local checkout)'}\n"
+        f"generated_at: {datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}\n"
+    )
 
     print(
         "Generated "

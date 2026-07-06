@@ -12,9 +12,9 @@ Target: PostgreSQL 16. Django `JSONField` columns are JSONB.
 
 ## JSONB
 
-- Shapes are documented in `jsonb/<db_table>.md`. `candidate_schemas` come from Pydantic API specs — strong hints, not guarantees; custom serializers can change stored shape.
+- Shapes are documented in `jsonb/<db_table>.md`, distilled from Pydantic API specs — strong hints, not guarantees; custom serializers can change the stored shape. Named object types are expanded once per file under `## definitions`.
 - Access patterns: `col->>'field'` (text), `col->'nested'` (jsonb), `jsonb_array_elements(col)` for arrays.
-- Fields under `meta_stored_fields` live in the `meta` column only when the resource sets `__store_metadata__ = True`.
+- Fields on a `stores (when __store_metadata__)` line live in the `meta` column only for resources that enable it.
 
 ## Enum values
 

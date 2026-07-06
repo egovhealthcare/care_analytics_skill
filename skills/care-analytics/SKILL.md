@@ -57,6 +57,45 @@ Two directories, two owners:
    - Plugin tables (`app/` sources) exist only in deployments that enable
      that plug — say so when a query depends on one
 
+## Metabase Transforms — last resort
+
+Some analytics cannot be expressed as a single live query, or would be
+grossly inefficient as one (window-heavy pre-aggregation over large tables,
+repeated expensive join chains, longitudinal rollups recomputed on every
+dashboard refresh). For those, the deployment supports Metabase Transforms
+(Data Studio): SQL materialized into a table on a schedule, which downstream
+questions then query cheaply. Division of labor: native SQL lives inside
+the transform; downstream queries on its output table use MBQL, which keeps
+pivots and drill-through available (connector quirks: `notes/_metabase.md`).
+
+Confirmed transforms are first-class catalog entities, registered one file
+per transform in `notes/transforms/<slug>.md` (output table, grain, columns,
+source SQL, refresh schedule — format: `notes/transforms/README.md`). Their
+output tables are queryable like any schema table and are the preferred
+source when they fit.
+
+Escalation order — exhaust each rung before the next:
+
+1. An existing transform's output table (`ls notes/transforms/`).
+2. Single query (SQL or MBQL).
+3. Multi-stage query, or a saved question used as source data.
+4. New transform. Only when 1–3 are impossible or clearly too expensive.
+
+If a transform is the chosen path, the procedure is mandatory:
+
+1. **Inform first.** Present the user the full planned set of transforms —
+   name, purpose, SQL, output table — before creating anything. Do not
+   proceed without their go-ahead.
+2. The MCP connector cannot create transforms. Save each transform's SQL as
+   a Metabase **question** (prefix the name with `[transform]`), then ask
+   the user to recreate it as a Transform in Data Studio and to confirm the
+   output table name once it exists.
+3. Only after that confirmation, build the downstream queries and
+   visualizations against the transform's output table. Never assume the
+   output table exists unconfirmed.
+4. **Register it.** Once confirmed, write `notes/transforms/<slug>.md` so
+   every future session finds it at rung 1 instead of rebuilding the logic.
+
 ## Growing the curated notes
 
 After answering, review what you learned that the catalog didn't tell you.

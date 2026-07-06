@@ -2,20 +2,6 @@
 
 One line per table. Details: `tables/<db_table>.md`. JSONB shapes: `jsonb/<db_table>.md`. Inherited columns: `_base_models.md`. Enum values: `_enums.md`. SQL rules: `_conventions.md`.
 
-## abdm
-
-- `abdm_abhanumber` (AbhaNumber) 19 declared cols | FK: emr_patient
-- `abdm_consentartefact` (ConsentArtefact) 8 declared cols, 1 jsonb | FK: abdm_consentrequest
-- `abdm_consentrequest` (ConsentRequest) 0 declared cols, 1 jsonb
-- `abdm_healthfacility` (HealthFacility) 3 declared cols | FK: facility_facility
-- `abdm_transaction` (Transaction) 5 declared cols, 1 jsonb | FK: users_user
-
-## care_scribe
-
-- `care_scribe_scribe` (Scribe) 17 declared cols, 3 jsonb | FK: emr_encounter, facility_facility, users_user
-- `care_scribe_scribefile` (ScribeFile) 9 declared cols, 1 jsonb | FK: users_user
-- `care_scribe_scribequota` (ScribeQuota) 9 declared cols | FK: facility_facility, users_user
-
 ## emr
 
 - `emr_account` (Account) 18 declared cols, 6 jsonb | FK: emr_encounter, emr_patient, facility_facility
@@ -96,46 +82,11 @@ One line per table. Details: `tables/<db_table>.md`. JSONB shapes: `jsonb/<db_ta
 - `emr_uservaluesetpreference` (UserValueSetPreference) 3 declared cols, 3 jsonb | FK: emr_valueset, users_user
 - `emr_valueset` (ValueSet) 6 declared cols, 3 jsonb
 
-## encounter_identifiers
-
-- `encounter_identifiers_encounteridentifierallocation` (EncounterIdentifierAllocation) 8 declared cols | FK: emr_encounter, facility_facility
-- `encounter_identifiers_encounteridentifiersequence` (EncounterIdentifierSequence) 3 declared cols | FK: facility_facility
-- `encounter_identifiers_facilityencounteridentifierconfig` (FacilityEncounterIdentifierConfig) 5 declared cols, 3 jsonb | FK: facility_facility
-
 ## facility
 
 - `facility_facility` (Facility) 20 declared cols, 1 jsonb | FK: emr_facilityorganization, emr_organization, users_user
 - `facility_facilityflag` (FacilityFlag) 1 declared cols | FK: facility_facility
 - `facility_mobileotp` (MobileOTP) 3 declared cols
-
-## nhcx
-
-- `nhcx_claim` (Claim) 22 declared cols, 15 jsonb | FK: emr_encounter, emr_patient, nhcx_provider
-- `nhcx_claimcondition` (ClaimCondition) 20 declared cols, 6 jsonb
-- `nhcx_claimconsent` (ClaimConsent) 9 declared cols, 3 jsonb | FK: emr_encounter, emr_patient
-- `nhcx_claimexclusion` (ClaimExclusion) 5 declared cols, 6 jsonb
-- `nhcx_claimresponse` (ClaimResponse) 13 declared cols, 9 jsonb | FK: nhcx_claim
-- `nhcx_claimsupportinginforequirement` (ClaimSupportingInfoRequirement) 5 declared cols, 4 jsonb
-- `nhcx_communication` (Communication) 8 declared cols, 4 jsonb | FK: nhcx_claim, nhcx_communicationrequest, nhcx_task
-- `nhcx_communicationrequest` (CommunicationRequest) 9 declared cols, 4 jsonb | FK: nhcx_claim, nhcx_communicationrequest, nhcx_task
-- `nhcx_coverageeligibilityrequest` (CoverageEligibilityRequest) 13 declared cols, 7 jsonb | FK: emr_encounter, emr_patient, nhcx_provider
-- `nhcx_coverageeligibilityresponse` (CoverageEligibilityResponse) 5 declared cols, 4 jsonb | FK: nhcx_coverageeligibilityrequest
-- `nhcx_insuranceplan` (InsurancePlan) 17 declared cols, 8 jsonb | FK: nhcx_task
-- `nhcx_insuranceplanbenefit` (InsurancePlanBenefit) 35 declared cols, 4 jsonb | FK: nhcx_insuranceplan, nhcx_insuranceplancoverage, nhcx_insuranceplanplan, nhcx_insuranceplanplanspecificcostbenefit
-- `nhcx_insuranceplancoverage` (InsurancePlanCoverage) 5 declared cols, 3 jsonb | FK: nhcx_insuranceplan
-- `nhcx_insuranceplancoveragebenefit` (InsurancePlanCoverageBenefit) 6 declared cols, 3 jsonb | FK: nhcx_insuranceplancoverage
-- `nhcx_insuranceplancoveragebenefitlimit` (InsurancePlanCoverageBenefitLimit) 7 declared cols, 3 jsonb | FK: nhcx_insuranceplancoveragebenefit
-- `nhcx_insuranceplanplan` (InsurancePlanPlan) 5 declared cols, 4 jsonb | FK: nhcx_insuranceplan
-- `nhcx_insuranceplanplangeneralcost` (InsurancePlanPlanGeneralCost) 7 declared cols, 3 jsonb | FK: nhcx_insuranceplanplan
-- `nhcx_insuranceplanplanspecificcost` (InsurancePlanPlanSpecificCost) 4 declared cols, 3 jsonb | FK: nhcx_insuranceplanplan
-- `nhcx_insuranceplanplanspecificcostbenefit` (InsurancePlanPlanSpecificCostBenefit) 5 declared cols, 3 jsonb | FK: nhcx_insuranceplanplanspecificcost
-- `nhcx_insuranceplanplanspecificcostbenefitcost` (InsurancePlanPlanSpecificCostBenefitCost) 7 declared cols, 4 jsonb | FK: nhcx_insuranceplanplanspecificcostbenefit
-- `nhcx_insuranceplanplanspecificcostbenefitcostqualifier` (InsurancePlanPlanSpecificCostBenefitCostQualifier) 4 declared cols, 3 jsonb | FK: nhcx_insuranceplanplanspecificcostbenefitcost
-- `nhcx_insuranceplanquestionnaire` (InsurancePlanQuestionnaire) 9 declared cols, 4 jsonb | FK: nhcx_insuranceplan
-- `nhcx_nhcxinboundenvelope` (NHCXInboundEnvelope) 10 declared cols, 3 jsonb
-- `nhcx_paymentreconciliation` (PaymentReconciliation) 12 declared cols, 7 jsonb | FK: nhcx_claim, nhcx_task
-- `nhcx_provider` (Provider) 3 declared cols | FK: facility_facility
-- `nhcx_task` (Task) 19 declared cols, 6 jsonb | FK: ?, ContentType, nhcx_claim, nhcx_task
 
 ## security
 

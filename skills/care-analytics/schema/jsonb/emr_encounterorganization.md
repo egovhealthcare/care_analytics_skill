@@ -1,35 +1,11 @@
-# emr_encounterorganization JSONB schemas
+# emr_encounterorganization JSONB shapes
+
+Distilled from Pydantic API specs — strong hints, not guarantees; custom serializers can change the stored shape.
 
 ## history
 
-```json
-{
- "candidate_schemas": [],
- "default_shape": {
-  "type": "object"
- },
- "inferred_schema": {
-  "type": "object"
- },
- "json_schema_validators": [],
- "meta_stored_fields": [],
- "status": "default_shape_only"
-}
-```
+- shape unknown — no spec declares this field (check serializers; default is dict)
 
 ## meta
 
-```json
-{
- "candidate_schemas": [],
- "default_shape": {
-  "type": "object"
- },
- "inferred_schema": {
-  "type": "object"
- },
- "json_schema_validators": [],
- "meta_stored_fields": [],
- "status": "default_shape_only"
-}
-```
+- shape unknown — no spec declares this field (check serializers; default is dict)

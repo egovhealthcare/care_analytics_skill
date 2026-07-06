@@ -1,86 +1,15 @@
-# emr_deliveryorder JSONB schemas
+# emr_deliveryorder JSONB shapes
+
+Distilled from Pydantic API specs — strong hints, not guarantees; custom serializers can change the stored shape.
 
 ## history
 
-```json
-{
- "candidate_schemas": [],
- "default_shape": {
-  "type": "object"
- },
- "inferred_schema": {
-  "type": "object"
- },
- "json_schema_validators": [],
- "meta_stored_fields": [],
- "status": "default_shape_only"
-}
-```
+- shape unknown — no spec declares this field (check serializers; default is dict)
 
 ## meta
 
-```json
-{
- "candidate_schemas": [
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/inventory/supply_delivery/delivery_order.py",
-   "spec": "care.emr.resources.inventory.supply_delivery.delivery_order.BaseSupplyDeliveryOrderSpec"
-  },
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/inventory/supply_delivery/delivery_order.py",
-   "spec": "care.emr.resources.inventory.supply_delivery.delivery_order.SupplyDeliveryOrderReadSpec"
-  },
-  {
-   "annotation": "dict",
-   "excluded_by_spec": false,
-   "required": false,
-   "schema": {
-    "raw": "dict",
-    "type": "object"
-   },
-   "source": "pydantic_spec",
-   "source_file": "care/emr/resources/inventory/supply_delivery/delivery_order.py",
-   "spec": "care.emr.resources.inventory.supply_delivery.delivery_order.SupplyDeliveryOrderWriteSpec"
-  }
- ],
- "default_shape": {
-  "type": "object"
- },
- "json_schema_validators": [],
- "meta_stored_fields": [],
- "status": "from_pydantic_spec"
-}
-```
+- dict, optional — BaseSupplyDeliveryOrderSpec, SupplyDeliveryOrderReadSpec, SupplyDeliveryOrderRetrieveSpec, SupplyDeliveryOrderWriteSpec
 
 ## extensions
 
-```json
-{
- "candidate_schemas": [],
- "default_shape": {
-  "type": "object"
- },
- "inferred_schema": {
-  "type": "object"
- },
- "json_schema_validators": [],
- "meta_stored_fields": [],
- "status": "default_shape_only"
-}
-```
+- shape unknown — no spec declares this field (check serializers; default is dict)
