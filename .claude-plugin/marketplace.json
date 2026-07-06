@@ -1,0 +1,17 @@
+{
+  "name": "care-analytics-marketplace",
+  "description": "Marketplace for the care-analytics Claude Code plugin: analytics SQL over the CARE EMR schema.",
+  "owner": {
+    "name": "eGovernments Foundation"
+  },
+  "plugins": [
+    {
+      "name": "care-analytics",
+      "source": "./",
+      "description": "Build analytics SQL over the CARE EMR PostgreSQL schema, including deployment-specific plugins. Ships a sharded schema catalog for low-context lookups.",
+      "author": {
+        "name": "eGovernments Foundation"
+      }
+    }
+  ]
+}

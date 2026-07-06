@@ -4,5 +4,8 @@
   "version": "0.1.0",
   "author": {
     "name": "eGovernments Foundation"
-  }
+  },
+  "homepage": "https://github.com/egovhealthcare/care_analytics_skill",
+  "repository": "https://github.com/egovhealthcare/care_analytics_skill",
+  "license": "MIT"
 }
