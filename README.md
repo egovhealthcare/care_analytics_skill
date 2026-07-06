@@ -74,9 +74,41 @@ changed. Plugin list comes from committed `plugs.json` or the
 
 ## Installing the plugin
 
-Point Claude Code / Cowork at this repo as a plugin (or add it to a
-marketplace). The schema travels with the skill, so consumers don't need the
-care source tree to build queries.
+This repo is a self-contained Claude Code plugin marketplace — the schema
+travels with the skill, so consumers don't need the care source tree to build
+queries. Install it with two commands in Claude Code:
+
+```
+/plugin marketplace add egovhealthcare/care_analytics_skill
+```
+
+```
+/plugin install care-analytics@care-analytics-marketplace
+```
+
+The first registers this repo as a marketplace; the second installs the
+`care-analytics` plugin (and its bundled skill) from it.
+
+### Team preconfig (optional)
+
+To make the plugin available to a whole team without each member running the
+commands, commit this to the project's `.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "care-analytics-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "egovhealthcare/care_analytics_skill"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "care-analytics@care-analytics-marketplace": true
+  }
+}
+```
 
 ## License
 
