@@ -1709,8 +1709,9 @@ def write_index_shard(tables: list[dict[str, Any]], model_to_table: dict[str, st
     lines = [
         "# CARE Physical Table Index",
         "",
-        "One line per table. Details: `tables/<db_table>.md`. "
-        "JSONB shapes: `jsonb/<db_table>.md`. "
+        "One line per table: `db_table` (ClassName) `<N>c` declared columns, "
+        "`<N>j` JSONB columns, `->` foreign-key target tables. "
+        "Details: `tables/<db_table>.md`. JSONB shapes: `jsonb/<db_table>.md`. "
         "Inherited columns: `_base_models.md`. Enum values: `_enums.md`. "
         "SQL rules: `_conventions.md`.",
         "",
@@ -1733,14 +1734,11 @@ def write_index_shard(tables: list[dict[str, Any]], model_to_table: dict[str, st
                     if c.get("relation")
                 }
             )
-            entry = (
-                f"- `{table['db_table']}` ({table['class_name']}) "
-                f"{len(declared)} declared cols"
-            )
+            entry = f"- `{table['db_table']}` ({table['class_name']}) {len(declared)}c"
             if table["jsonb_column_count"]:
-                entry += f", {table['jsonb_column_count']} jsonb"
+                entry += f" {table['jsonb_column_count']}j"
             if fks:
-                entry += " | FK: " + ", ".join(fks)
+                entry += " -> " + " ".join(fks)
             lines.append(entry)
         lines.append("")
     (SCHEMA_DIR / "_index.md").write_text("\n".join(lines))

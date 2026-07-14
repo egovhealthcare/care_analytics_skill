@@ -4,8 +4,11 @@ Claude plugin that builds analytics SQL over the [CARE](https://github.com/ohcne
 EMR schema, including deployment-specific plugins.
 
 The `care-analytics` skill ships a **sharded schema catalog** so an AI agent
-reads ~20KB per query (index + the few tables involved) instead of the full
-2.5MB catalog.
+spends **~5K tokens of context per query** (the ~2.6K-token table index plus
+the few small per-table and JSONB shards a query touches) instead of the
+**~35K tokens** it would cost to load the whole markdown catalog.
+(`physical-tables.json`, the machine-readable build artifact, is ~550K tokens —
+it can't fit in context, so the agent never reads it.)
 
 ## How it works
 
