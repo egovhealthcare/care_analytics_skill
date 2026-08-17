@@ -292,7 +292,7 @@ Every enum-ish class and choices constant found in the scanned source, grouped b
 ## care/emr/resources/tag/config_spec.py
 
 - `TagCategoryChoices`: diet, drug, lab, admin, contact, clinical, behavioral, research, advance_directive, safety
-- `TagResource`: encounter, activity_definition, service_request, charge_item, charge_item_definition, patient, token_booking, medication_request_prescription, supply_request_order, supply_delivery_order, account
+- `TagResource`: encounter, activity_definition, service_request, charge_item, charge_item_definition, patient, token_booking, medication_request_prescription, supply_request_order, supply_delivery_order, account, location
 - `TagStatus`: active, archived
 
 ## care/emr/resources/valueset/spec.py

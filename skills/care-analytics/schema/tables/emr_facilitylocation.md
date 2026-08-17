@@ -24,5 +24,6 @@ bases: EMRBaseModel (inherited columns: `_base_models.md`)
 - `root_location` foreign_key -> emr_facilitylocation [col: root_location_id] NULL
 - `current_encounter` foreign_key -> emr_encounter [col: current_encounter_id] NULL
 - `sort_index` integer default=0
+- `tags` array<integer> default=list
 
 JSONB shapes (`history`, `meta`, `location_type`, `metadata`, `cached_parent_json`): `jsonb/emr_facilitylocation.md`
