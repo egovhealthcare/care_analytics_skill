@@ -86,7 +86,7 @@ One line per table. Details: `tables/<db_table>.md`. JSONB shapes: `jsonb/<db_ta
 
 - `facility_facility` (Facility) 20 declared cols, 1 jsonb | FK: emr_facilityorganization, emr_organization, users_user
 - `facility_facilityflag` (FacilityFlag) 1 declared cols | FK: facility_facility
-- `facility_mobileotp` (MobileOTP) 3 declared cols
+- `facility_mobileotp` (MobileOTP) 4 declared cols
 
 ## security
 
