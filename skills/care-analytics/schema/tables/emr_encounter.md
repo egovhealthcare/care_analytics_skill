@@ -8,7 +8,6 @@ bases: EMRBaseModel (inherited columns: `_base_models.md`)
 - `status` string(100) NULL
 - `status_history` jsonb default=dict
 - `encounter_class` string(100) NULL
-- `encounter_class_history` jsonb default=dict
 - `patient` foreign_key -> emr_patient [col: patient_id]
 - `period` jsonb default=dict
 - `facility` foreign_key -> facility_facility [col: facility_id]
@@ -24,4 +23,4 @@ bases: EMRBaseModel (inherited columns: `_base_models.md`)
 - `tags` array<integer> default=list
 - `extensions` jsonb default=dict
 
-JSONB shapes (`history`, `meta`, `status_history`, `encounter_class_history`, `period`, `hospitalization`, `care_team`, `extensions`): `jsonb/emr_encounter.md`
+JSONB shapes (`history`, `meta`, `status_history`, `period`, `hospitalization`, `care_team`, `extensions`): `jsonb/emr_encounter.md`

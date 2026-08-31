@@ -14,10 +14,6 @@ Distilled from Pydantic API specs — strong hints, not guarantees; custom seria
 
 - dict, required — EncounterListSpec, EncounterRetrieveSpec
 
-## encounter_class_history
-
-- dict, required — EncounterListSpec, EncounterRetrieveSpec
-
 ## period
 
 - PeriodSpec, optional — EncounterCreateSpec, EncounterListSpec, EncounterRetrieveSpec, EncounterSpecBase

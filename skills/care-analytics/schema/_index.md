@@ -20,7 +20,7 @@ One line per table. Details: `tables/<db_table>.md`. JSONB shapes: `jsonb/<db_ta
 - `emr_deviceservicehistory` (DeviceServiceHistory) 4 declared cols, 3 jsonb | FK: emr_device
 - `emr_diagnosticreport` (DiagnosticReport) 9 declared cols, 4 jsonb | FK: emr_encounter, emr_patient, emr_servicerequest, facility_facility
 - `emr_dispenseorder` (DispenseOrder) 8 declared cols, 2 jsonb | FK: emr_facilitylocation, emr_patient, facility_facility
-- `emr_encounter` (Encounter) 18 declared cols, 8 jsonb | FK: emr_facilitylocation, emr_patient, emr_tokenbooking, facility_facility
+- `emr_encounter` (Encounter) 17 declared cols, 7 jsonb | FK: emr_facilitylocation, emr_patient, emr_tokenbooking, facility_facility
 - `emr_encounterorganization` (EncounterOrganization) 2 declared cols, 2 jsonb | FK: emr_encounter, emr_facilityorganization
 - `emr_facilitylocation` (FacilityLocation) 20 declared cols, 5 jsonb | FK: emr_encounter, emr_facilitylocation, facility_facility
 - `emr_facilitylocationencounter` (FacilityLocationEncounter) 5 declared cols, 2 jsonb | FK: emr_encounter, emr_facilitylocation
