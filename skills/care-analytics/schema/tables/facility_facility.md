@@ -25,8 +25,9 @@ bases: BaseModel (inherited columns: `_base_models.md`)
 - `middleware_address` string(200) NULL
 - `is_public` boolean default=False
 - `print_templates` jsonb default=list
+- `extensions` jsonb default=dict
 
-JSONB shapes (`print_templates`): `jsonb/facility_facility.md`
+JSONB shapes (`print_templates`, `extensions`): `jsonb/facility_facility.md`
 
 ## Model meta
 

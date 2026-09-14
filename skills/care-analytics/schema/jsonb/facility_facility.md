@@ -7,6 +7,10 @@ Distilled from Pydantic API specs — strong hints, not guarantees; custom seria
 - list[PrintTemplate], optional — FacilityCreateSpec
 - list[dict], optional — FacilityRetrieveSpec
 
+## extensions
+
+- shape unknown — no spec declares this field (check serializers; default is dict)
+
 ## definitions
 
 - `BrandingConfig`: {logo: LogoConfig?, header_image: HeaderImageConfig?, footer_image: FooterImageConfig?}
