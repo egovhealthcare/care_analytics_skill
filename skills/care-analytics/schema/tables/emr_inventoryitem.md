@@ -11,3 +11,11 @@ bases: EMRBaseModel (inherited columns: `_base_models.md`)
 - `net_content` decimal default=Decimal(0)
 
 JSONB shapes (`history`, `meta`): `jsonb/emr_inventoryitem.md`
+
+## Model meta
+
+```json
+{
+ "constraints": "[models.UniqueConstraint(fields=['product', 'location'], condition=models.Q(deleted=False), name='unique_active_inventory_product_location')]"
+}
+```

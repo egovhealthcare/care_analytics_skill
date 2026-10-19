@@ -8,8 +8,8 @@ Distilled from Pydantic API specs — strong hints, not guarantees; custom seria
 
 ## meta
 
-- dict, optional — TokenCategoryBaseSpec, TokenCategoryCreateSpec, TokenCategoryReadSpec, TokenCategoryRetrieveSpec
+- dict, optional — TokenCategoryBaseSpec, TokenCategoryCreateSpec, TokenCategoryReadSpec, TokenCategoryRetrieveSpec +1
 
 ## metadata
 
-- dict?, optional — TokenCategoryBaseSpec, TokenCategoryCreateSpec, TokenCategoryReadSpec, TokenCategoryRetrieveSpec
+- dict?, optional — TokenCategoryBaseSpec, TokenCategoryCreateSpec, TokenCategoryReadSpec, TokenCategoryRetrieveSpec +1

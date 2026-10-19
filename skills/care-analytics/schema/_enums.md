@@ -145,6 +145,7 @@ Every enum-ish class and choices constant found in the scanned source, grouped b
 - `LocationAvailabilityStatusChoices`: available, reserved
 - `FacilityLocationOperationalStatusChoices`: C, H, O, U, K, I
 - `FacilityLocationModeChoices`: instance, kind
+- `InventoryUsage`: store, supplier, consumption, adjustment, none
 - `FacilityLocationFormChoices`: si, bu, wi, wa, lvl, co, ro, bd, ve, ho, ca, rd, area, jdn, vi
 
 ## care/emr/resources/medication/administration/spec.py

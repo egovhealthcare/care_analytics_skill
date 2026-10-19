@@ -13,6 +13,7 @@ bases: EMRBaseModel (inherited columns: `_base_models.md`)
 - `mode` string(255)
 - `location_type` jsonb NULL default=dict
 - `form` string(255)
+- `inventory_usage` string(255) default=none
 - `facility_organization_cache` array<integer> default=list
 - `facility` foreign_key -> facility_facility [col: facility_id]
 - `parent` foreign_key -> emr_facilitylocation [col: parent_id] NULL
